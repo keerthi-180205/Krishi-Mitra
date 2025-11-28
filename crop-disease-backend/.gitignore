@@ -1,0 +1,43 @@
+# Ignore the virtual environment folder
+venv/
+env/
+
+# Ignore compiled python files
+__pycache__/
+*.pyc
+
+# Ignore system files
+.DS_Store
+```
+
+4.  **Save** the file.
+
+### Step 3: Initialize and Push
+
+Now, open your **Backend Terminal** in VS Code and run these commands one by one:
+
+1.  **Initialize Git:**
+    ```bash
+    git init
+    ```
+
+2.  **Add files (This will respect your .gitignore):**
+    ```bash
+    git add .
+    ```
+
+3.  **Commit:**
+    ```bash
+    git commit -m "Initial backend commit"
+    ```
+
+4.  **Link to GitHub:**
+    *(Copy the URL from the GitHub page you just created)*
+    ```bash
+    git remote add origin https://github.com/Tejas-721/crop-disease-backend.git
+    ```
+
+5.  **Rename branch and Push:**
+    ```bash
+    git branch -M main
+    git push -u origin main
