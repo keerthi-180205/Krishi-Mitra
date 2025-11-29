@@ -41,6 +41,7 @@ const Navbar = () => {
   const navLinks = [
     { path: "/", label: "Home" },
     { path: "/detection", label: "Detect Disease" },
+    { path: "/assistant", label: "AI Assistant" },
     { path: "/crop-recommender", label: "Crop Recommender" },
     { path: "/fertilizer-recommender", label: "Fertilizer Recommender" },
     { path: "/about", label: "About" },

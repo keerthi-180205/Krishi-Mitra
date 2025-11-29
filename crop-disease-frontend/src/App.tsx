@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import CropRecommender from "./pages/CropRecommender";
 import FertilizerRecommender from "./pages/FertilizerRecommender";
+import Assistant from "./pages/Assistant";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/detection" element={<Detection />} />
+          <Route path="/assistant" element={<Assistant />} />
           <Route path="/about" element={<About />} />
           <Route path="/crop-recommender" element={<CropRecommender />} />
           <Route path="/fertilizer-recommender" element={<FertilizerRecommender />} />

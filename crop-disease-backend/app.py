@@ -1,7 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
 from model import load_ai_model, preprocess_image, predict_disease
 from recommenders import recommend_crop, recommend_fertilizer
+from gemini_client import get_gemini_response, get_assistant_response
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -31,6 +35,11 @@ def detect():
     try:
         processed_image = preprocess_image(file)
         prediction = predict_disease(processed_image)
+        
+        # Get additional details from Gemini
+        gemini_details = get_gemini_response(prediction['disease'])
+        prediction['gemini_details'] = gemini_details
+        
         print(f"Prediction result: {prediction}")
         return jsonify(prediction)
     except Exception as e:
@@ -65,6 +74,20 @@ def fertilizer_recommendation():
             return jsonify({'error': 'Invalid or incomplete input data.'}), 400
 
         return jsonify({'recommendation': recommendation})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ask-assistant', methods=['POST'])
+def ask_assistant():
+    try:
+        data = request.get_json()
+        if not data or 'question' not in data:
+            return jsonify({'error': 'No question provided'}), 400
+            
+        question = data['question']
+        answer = get_assistant_response(question)
+        
+        return jsonify({'answer': answer})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
