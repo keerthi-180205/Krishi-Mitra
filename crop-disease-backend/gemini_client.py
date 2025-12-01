@@ -3,6 +3,8 @@
 # --- SSL FIX (keep at very top) ---
 import os
 import certifi
+
+# For some Windows / SSL issues with gRPC
 os.environ["GRPC_DEFAULT_SSL_ROOTS_FILE_PATH"] = certifi.where()
 # ----------------------------------
 
@@ -10,8 +12,9 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from pathlib import Path
 
+
 # --- Load .env from project root and from this file's directory ---
-project_root = Path(__file__).resolve().parent.parent  # adjust if needed
+project_root = Path(__file__).resolve().parent.parent  # adjust if your structure is different
 this_dir = Path(__file__).resolve().parent
 
 # Try both locations: project root and current dir
@@ -23,8 +26,9 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise RuntimeError(
         "❌ GEMINI_API_KEY not found in environment.\n"
-        "Make sure you have a .env file with:\n"
-        "GEMINI_API_KEY=your_key_here"
+        "Create a .env file in your project root with a line like:\n"
+        "GEMINI_API_KEY=your_actual_gemini_api_key_here\n"
+        "Do NOT hardcode your real key inside the source code."
     )
 
 print(f"🔑 GEMINI Key found: {api_key[:6]}******")
@@ -36,9 +40,11 @@ def _select_model_name() -> str:
     """
     Auto-detect a usable model for this API key.
     Priority:
-      1. gemini-1.5-flash
-      2. gemini-1.5-pro
-      3. gemini-pro
+       gemini-2.5-flash
+       gemini-2.5-pro
+       gemini-1.5-flash
+       gemini-1.5-pro
+       gemini-pro
     Falls back to first model that supports 'generateContent'.
     """
     print("=== 🔍 Fetching available models for this API key ===")
@@ -49,8 +55,8 @@ def _select_model_name() -> str:
 
     if not models:
         raise RuntimeError(
-            "❌ No models returned for this API key. "
-            "This usually means the key is not a valid Gemini API key. "
+            "❌ No models returned for this API key.\n"
+            "This usually means the key is not a valid Gemini API key.\n"
             "Create a new key from Google AI Studio (NOT Vertex / old PaLM)."
         )
 
@@ -59,12 +65,12 @@ def _select_model_name() -> str:
         try:
             print(f" - {m.name} | methods: {getattr(m, 'supported_generation_methods', [])}")
         except Exception:
-            # Just in case some model object is weird
             print(f" - {m}")
 
     # Filter only models that support generateContent
     gencontent_models = [
-        m for m in models
+        m
+        for m in models
         if "generateContent" in getattr(m, "supported_generation_methods", [])
     ]
 
@@ -82,6 +88,8 @@ def _select_model_name() -> str:
         "models/gemini-1.5-flash",
         "models/gemini-1.5-pro",
         "models/gemini-pro",
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
         "gemini-1.5-flash",
         "gemini-1.5-pro",
         "gemini-pro",
@@ -102,8 +110,16 @@ def _select_model_name() -> str:
 
 # --- Select and create the model once ---
 MODEL_NAME = _select_model_name()
-model = genai.GenerativeModel(MODEL_NAME)
-print(f"🤖 Using model: {MODEL_NAME}")
+
+# For GenerativeModel, we usually don't include the "models/" prefix.
+if MODEL_NAME.startswith("models/"):
+    MODEL_NAME_FOR_CLIENT = MODEL_NAME.split("/", 1)[1]  # e.g. "models/gemini-1.5-flash" -> "gemini-1.5-flash"
+else:
+    MODEL_NAME_FOR_CLIENT = MODEL_NAME
+
+model = genai.GenerativeModel(MODEL_NAME_FOR_CLIENT)
+
+print(f"🤖 Using model: {MODEL_NAME} (client uses: {MODEL_NAME_FOR_CLIENT})")
 
 
 def _call_gemini(prompt: str) -> str:
@@ -139,8 +155,10 @@ def _call_gemini(prompt: str) -> str:
             print("✅ [Gemini] Built text from candidates (len:", len(text), ")")
             return text
 
-        print("⚠️ [Gemini] Response had no text. Raw response (short):",
-              shorten(str(resp), width=200, placeholder="..."))
+        print(
+            "⚠️ [Gemini] Response had no text. Raw response (short):",
+            shorten(str(resp), width=200, placeholder="..."),
+        )
         return ""
 
     except Exception as e:
@@ -152,6 +170,7 @@ def _call_gemini(prompt: str) -> str:
 def get_gemini_response(disease_name: str) -> str:
     """
     Function 1: Disease Advisory for detected crop disease.
+    Returns advisory text in simple Kannada.
     """
     prompt = f"""
     You are 'Krishi Mitra', an agricultural expert for Karnataka.
@@ -173,6 +192,7 @@ def get_gemini_response(disease_name: str) -> str:
 def get_assistant_response(question: str) -> str:
     """
     Function 2: General QA Assistant for farmers.
+    Answers in very simple Kannada.
     """
     prompt = f"""
     You are 'Krishi Mitra', a helpful agricultural assistant for farmers in Karnataka.

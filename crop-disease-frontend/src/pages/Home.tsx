@@ -1,203 +1,119 @@
-import { useState, useEffect } from "react";
+
+import { ServiceCard } from "../components/ServiceCard"; // Changed to relative path
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf, Upload, Brain, CheckCircle, ArrowRight } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
-import { Session } from "@supabase/supabase-js";
+import { Bot, Sprout } from "lucide-react";
 
 const Home = () => {
   const navigate = useNavigate();
-  const [session, setSession] = useState<Session | null>(null);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const steps = [
+  // This is your Feature List
+  const features = [
     {
-      icon: Upload,
-      title: "Upload Image",
-      description: "Take a photo of the affected crop leaf and upload it to our platform",
+      title: "Crop Disease Detection",
+      description: "Our flagship feature. Upload a photo of your crop leaf to instantly detect diseases and get treatment remedies.",
+      // Image: A close up of a leaf
+      image: "https://images.unsplash.com/photo-1615811361269-6c8731c7f526?auto=format&fit=crop&q=80&w=1000",
+      tag: "Main Feature",
+      route: "/detection" // Redirects to your existing detection page
     },
     {
-      icon: Brain,
-      title: "AI Analysis",
-      description: "Our advanced ML model analyzes the image to detect diseases",
+      title: "Fertilizer Recommender",
+      description: "Get precise fertilizer recommendations based on your soil's nitrogen, phosphorus, and potassium levels.",
+      // Image: Hands holding soil/fertilizer
+      image: "https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&q=80&w=1000",
+      tag: "Soil Health",
+      route: "/fertilizer" // You need to create this page later
     },
     {
-      icon: CheckCircle,
-      title: "Get Results",
-      description: "Receive instant diagnosis with remedies and prevention tips",
+      title: "Crop Recommender",
+      description: "Advanced algorithms suggest the most profitable and suitable crops for your specific weather and soil conditions.",
+      // Image: A lush green field
+      image: "https://images.unsplash.com/photo-1625246333195-5840507993eb?auto=format&fit=crop&q=80&w=1000",
+      tag: "Smart Planning",
+      route: "/crop-recommend" // You need to create this page later
     },
+    {
+      title: "AI Assistant",
+      description: "Have questions about farming? Chat with our smart AI assistant for instant agricultural advice and tips.",
+      // Image: Futuristic farming/tech
+      image: "https://images.unsplash.com/photo-1535378437327-b7128d63743b?auto=format&fit=crop&q=80&w=1000",
+      tag: "24/7 Support",
+      route: "/ai-assistant" // You need to create this page later
+    }
   ];
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-glow to-secondary py-20 text-primary-foreground">
-        <div className="container relative z-10 mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 flex justify-center">
-              <div className="rounded-full bg-primary-foreground/10 p-4 backdrop-blur-sm">
-                <Leaf className="h-12 w-12" />
-              </div>
-            </div>
-            <h1 className="mb-6 text-4xl font-bold leading-tight md:text-6xl">
-              Protect Your Crops with AI-Powered Disease Detection
-            </h1>
-            <p className="mb-8 text-lg opacity-90 md:text-xl">
-              Get instant, accurate diagnosis of crop diseases and expert advice to save your harvest.
-              No technical expertise required.
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={() => navigate(session ? "/detection" : "/auth")}
-                className="gap-2 text-lg"
-              >
-                Start Detection
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate("/about")}
-                className="border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20"
-              >
-                Learn More
-              </Button>
-            </div>
+    <div className="min-h-screen bg-[#1a1f2c] font-sans text-gray-100">
+      {/* Navbar - Using the one we designed earlier */}
+
+      {/* Hero / Main Content */}
+      <main className="container mx-auto px-4 py-16">
+        
+        {/* Header Section */}
+        <div className="text-center mb-16 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          <div className="inline-block">
+            <span className="bg-[#4CAF50]/10 border border-[#4CAF50]/20 text-[#4CAF50] px-6 py-2 rounded-full font-semibold flex items-center gap-2 mx-auto w-fit transition-all hover:bg-[#4CAF50]/20">
+              <Sprout className="h-4 w-4" />
+              Smart Agriculture
+            </span>
+          </div>
+          
+          <h2 className="text-4xl md:text-6xl font-bold text-white mt-6 tracking-tight">
+            Farming Meets <span className="text-[#4CAF50]">Future</span>
+          </h2>
+          
+          <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
+            Empowering farmers with AI-driven tools for disease detection, 
+            soil analysis, and smart crop planning.
+          </p>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((feature, index) => (
+            <ServiceCard
+              key={index}
+              title={feature.title}
+              description={feature.description}
+              image={feature.image}
+              tag={feature.tag}
+              onClick={() => navigate(feature.route)}
+            />
+          ))}
+        </div>
+
+        {/* Quick Stats / Footer Banner (Optional Visual flair) */}
+        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-gray-800 pt-10">
+          <div className="text-center">
+            <h4 className="text-3xl font-bold text-[#4CAF50]">98%</h4>
+            <p className="text-sm text-gray-500">Accuracy Rate</p>
+          </div>
+          <div className="text-center">
+            <h4 className="text-3xl font-bold text-[#4CAF50]">24/7</h4>
+            <p className="text-sm text-gray-500">AI Availability</p>
+          </div>
+          <div className="text-center">
+            <h4 className="text-3xl font-bold text-[#4CAF50]">15+</h4>
+            <p className="text-sm text-gray-500">Diseases Detectable</p>
+          </div>
+          <div className="text-center">
+            <h4 className="text-3xl font-bold text-[#4CAF50]">Free</h4>
+            <p className="text-sm text-gray-500">For Farmers</p>
           </div>
         </div>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20"></div>
-      </section>
 
-      {/* How It Works */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">
-              How It Works
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Simple 3-step process to detect and treat crop diseases
-            </p>
-          </div>
-          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
-            {steps.map((step, index) => (
-              <Card key={index} className="relative shadow-soft">
-                <CardHeader>
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                    <step.icon className="h-8 w-8 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">{step.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-base">{step.description}</CardDescription>
-                </CardContent>
-                {index < steps.length - 1 && (
-                  <div className="absolute -right-4 top-1/2 hidden -translate-y-1/2 md:block">
-                    <ArrowRight className="h-8 w-8 text-muted-foreground/30" />
-                  </div>
-                )}
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+        {/* Floating Chat Button */}
+        <button 
+          onClick={() => navigate('/ai-assistant')}
+          className="fixed bottom-8 right-8 bg-[#4CAF50] hover:bg-[#43a047] text-white p-4 rounded-full shadow-2xl transition-all hover:scale-110 z-50 group"
+        >
+          <Bot className="h-8 w-8" />
+          <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white text-black px-3 py-1 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            Ask AI Assistant
+          </span>
+        </button>
 
-      {/* Features */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-5xl">
-            <div className="grid gap-8 md:grid-cols-2">
-              <Card className="shadow-medium">
-                <CardHeader>
-                  <CardTitle className="text-2xl">Why Choose CropCare AI?</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-3">
-                    <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                    <div>
-                      <h3 className="font-semibold text-foreground">High Accuracy</h3>
-                      <p className="text-sm text-muted-foreground">
-                        90%+ accuracy powered by advanced deep learning models
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                    <div>
-                      <h3 className="font-semibold text-foreground">Instant Results</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Get diagnosis and remedies in seconds, not days
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                    <div>
-                      <h3 className="font-semibold text-foreground">Expert Advice</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Actionable recommendations backed by agricultural research
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                    <div>
-                      <h3 className="font-semibold text-foreground">Easy to Use</h3>
-                      <p className="text-sm text-muted-foreground">
-                        No technical knowledge needed - just upload and go
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-medium border-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-2xl">Ready to Start?</CardTitle>
-                  <CardDescription className="text-base">
-                    Join thousands of farmers protecting their crops with AI
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <p className="text-muted-foreground">
-                    Create a free account to start detecting crop diseases and get expert advice
-                    tailored to your needs. Early detection can save your entire harvest!
-                  </p>
-                  <div className="space-y-3">
-                    <Button
-                      size="lg"
-                      onClick={() => navigate("/auth")}
-                      className="w-full gap-2"
-                    >
-                      {session ? "Go to Detection" : "Get Started Free"}
-                      <ArrowRight className="h-5 w-5" />
-                    </Button>
-                    <p className="text-center text-xs text-muted-foreground">
-                      No credit card required • Free forever
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
+      </main>
     </div>
   );
 };
